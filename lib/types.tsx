@@ -48,7 +48,7 @@ export interface Post {
   id: string;
   user: User;
   timestamp: number;
-  slackUrl: string;
+  slackUrl: string | null;
   postedAt: Date;
   text: string;
   attachments: string[];
