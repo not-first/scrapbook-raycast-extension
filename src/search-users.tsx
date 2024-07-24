@@ -15,23 +15,26 @@ export default function SearchUsers(props: LaunchProps) {
     isLoadingMore: false,
   });
 
-  const loadNextPage = useCallback((nextPage: number) => {
-    if (!data) return;
+  const loadNextPage = useCallback(
+    (nextPage: number) => {
+      if (!data) return;
 
-    setState((previous) => ({ ...previous, isLoadingMore: true }));
+      setState((previous) => ({ ...previous, isLoadingMore: true }));
 
-    const startIndex = nextPage * pageSize;
-    const endIndex = startIndex + pageSize;
-    const newData = data.slice(startIndex, endIndex);
+      const startIndex = nextPage * pageSize;
+      const endIndex = startIndex + pageSize;
+      const newData = data.slice(startIndex, endIndex);
 
-    setState((previous) => ({
-      ...previous,
-      data: [...previous.data, ...newData.filter((newUser) => !previous.data.some((user) => user.id === newUser.id))],
-      hasMore: endIndex < data.length,
-      isLoadingMore: false,
-      nextPage: nextPage + 1,
-    }));
-  }, [data]);
+      setState((previous) => ({
+        ...previous,
+        data: [...previous.data, ...newData.filter((newUser) => !previous.data.some((user) => user.id === newUser.id))],
+        hasMore: endIndex < data.length,
+        isLoadingMore: false,
+        nextPage: nextPage + 1,
+      }));
+    },
+    [data],
+  );
 
   useEffect(() => {
     if (data && state.nextPage === 0) {
@@ -71,11 +74,7 @@ export default function SearchUsers(props: LaunchProps) {
                     <List.Item.Detail.Metadata.Label title="Timezone" text={user.timezone} icon={Icon.Clock} />
                   ) : undefined}
                   <List.Item.Detail.Metadata.Separator />
-                  <List.Item.Detail.Metadata.Label
-                    title="Email"
-                    icon={Icon.Envelope}
-                    text={user.email || "No email"}
-                  />
+                  <List.Item.Detail.Metadata.Label title="Email" icon={Icon.Envelope} text={user.email || "No email"} />
                   <List.Item.Detail.Metadata.Link
                     title="Website"
                     text={user.website || "No website"}
@@ -90,9 +89,7 @@ export default function SearchUsers(props: LaunchProps) {
                   <List.Item.Detail.Metadata.Link
                     title="Scrapbook Profile"
                     text={"Open Scrapbook"}
-                    target={
-                      user.customDomain || "https://scrapbook.hackclub.com/" + encodeURIComponent(user.username)
-                    }
+                    target={user.customDomain || "https://scrapbook.hackclub.com/" + encodeURIComponent(user.username)}
                   />
                   <List.Item.Detail.Metadata.TagList title="Posts">
                     <List.Item.Detail.Metadata.TagList.Item
@@ -107,8 +104,7 @@ export default function SearchUsers(props: LaunchProps) {
                       }}
                     />
                   </List.Item.Detail.Metadata.TagList>
-                  {user.displayStreak == true &&
-                  (user.streaksToggledOff == null || user.streaksToggledOff == false) ? (
+                  {user.displayStreak == true && (user.streaksToggledOff == null || user.streaksToggledOff == false) ? (
                     <>
                       <List.Item.Detail.Metadata.Separator />
                       <List.Item.Detail.Metadata.Label

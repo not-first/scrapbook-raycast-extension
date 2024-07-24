@@ -6,9 +6,8 @@
   "icon": "icon.png",
   "author": "faker",
   "categories": [
-    "Fun",
-    "Web",
-    "Media"
+    "Media",
+    "Fun"
   ],
   "license": "MIT",
   "commands": [
