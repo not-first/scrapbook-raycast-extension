@@ -1,3 +1,5 @@
 # Scrapbook Changelog
 
-## [Initial Version] - 2024-07-19
+## [Initial Version] - 2024-07-24
+
+- Initial release

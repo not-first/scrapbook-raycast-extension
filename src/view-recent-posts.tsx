@@ -1,7 +1,9 @@
-import { Action, ActionPanel, Icon, launchCommand, LaunchProps, LaunchType, List } from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, launchCommand, LaunchProps, LaunchType, List } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { Post } from "../lib/types";
 import { useEffect, useState } from "react";
+
+const colors = [Color.Magenta, Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange];
 
 export default function ViewRecentPosts(props: LaunchProps) {
   const {
@@ -81,7 +83,7 @@ export default function ViewRecentPosts(props: LaunchProps) {
                     <List.Item.Detail.Metadata.Separator />
                     <List.Item.Detail.Metadata.TagList title="Author">
                       <List.Item.Detail.Metadata.TagList.Item
-                        color="Blue"
+                        color={colors[Math.floor(Math.random() * colors.length)]}
                         icon={Icon.Person}
                         text={post.user.username}
                         onAction={async () => {
@@ -92,7 +94,6 @@ export default function ViewRecentPosts(props: LaunchProps) {
                           });
                         }}
                       />
-                      ;
                     </List.Item.Detail.Metadata.TagList>
                     <List.Item.Detail.Metadata.Separator />
                     <List.Item.Detail.Metadata.Link
@@ -106,14 +107,7 @@ export default function ViewRecentPosts(props: LaunchProps) {
             }
             actions={
               <ActionPanel>
-                {post.slackUrl ? <Action.OpenInBrowser title="Open Slack Message" url={post.slackUrl} /> : undefined}
-                <Action.OpenInBrowser
-                  title="Open Scrapbook Profile"
-                  url={"https://scrapbook.hackclub.com/" + encodeURIComponent(post.user.username)}
-                />
-                <ActionPanel.Section>
-                  <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={async () => postsRevalidate()} />
-                </ActionPanel.Section>
+                <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={async () => postsRevalidate()} />
               </ActionPanel>
             }
           />
