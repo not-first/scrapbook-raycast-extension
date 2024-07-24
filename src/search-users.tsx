@@ -1,9 +1,9 @@
-import { Icon, Image, LaunchProps, List } from "@raycast/api";
+import { Action, ActionPanel, Icon, Image, LaunchProps, List } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { User } from "../lib/types";
 
 export default function SearchUsers(props: LaunchProps) {
-  const { isLoading, data } = useFetch<User[]>("https://scrapbook.hackclub.com/api/users");
+  const { isLoading, data, revalidate } = useFetch<User[]>("https://scrapbook.hackclub.com/api/users");
 
   return (
     <List isLoading={isLoading} searchText={props.launchContext?.username} isShowingDetail>
@@ -28,6 +28,21 @@ export default function SearchUsers(props: LaunchProps) {
                 </List.Item.Detail.Metadata.TagList>
               </List.Item.Detail.Metadata>
               }/>
+            }
+            actions={
+              <ActionPanel>
+                <Action.OpenInBrowser
+                  title="Open Scrapbook Profile"
+                  url={"https://scrapbook.hackclub.com/" + encodeURIComponent(user.username)}
+                />
+                <ActionPanel.Section>
+                  <Action
+                    title="Refresh"
+                    icon={Icon.ArrowClockwise}
+                    onAction={async () => revalidate()}
+                  />
+                </ActionPanel.Section>
+              </ActionPanel>
             }
           />
         );

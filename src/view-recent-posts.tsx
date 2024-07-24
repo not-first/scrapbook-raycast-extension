@@ -1,25 +1,39 @@
-import { Icon, launchCommand, LaunchType, List, open } from "@raycast/api";
+import { Action, ActionPanel, Icon, launchCommand, LaunchType, List, open } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { Post } from "../lib/types";
+import { Post, User } from "../lib/types";
+import { useEffect, useState } from "react";
 
 export default function ViewRecentPosts() {
-  const { isLoading, data } = useFetch<Post[]>("https://scrapbook.hackclub.com/api/posts");
+  const { isLoading: isPostsLoading, data: postsData, revalidate: postsRevalidate } = useFetch<Post[]>("https://scrapbook.hackclub.com/api/posts");
+
+  const [filteredUser, setFilteredUser] = useState<string | undefined>(undefined);
+  const [filteredData, setFilteredData] = useState<Post[] | undefined>(undefined);
+
+  const uniqueUsernames = postsData ? Array.from(new Set(postsData.map(post => post.user.username))) : [];
+
+  useEffect(() => {
+    if (filteredUser && filteredUser !== "") {
+      setFilteredData(postsData?.filter((post) => post.user.username === filteredUser));
+    } else {
+      setFilteredData(postsData);
+    }
+  }, [filteredUser]);
 
   return (
-    <List isLoading={isLoading} isShowingDetail>
-      {data?.map((post: Post) => {
+    <List isLoading={isPostsLoading} searchBarAccessory={<ListUsersDropdown usernames={uniqueUsernames} setUser={setFilteredUser}/>} isShowingDetail>
+      {filteredData?.map((post: Post) => {
         const readableDate = new Date(post.postedAt).toLocaleDateString("en-US", {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
         });
 
         const readableTime = new Date(post.postedAt).toLocaleTimeString("en-US", {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
         });
 
         const fullReadableDateTime = `${readableDate} at ${readableTime}`;
@@ -29,32 +43,84 @@ export default function ViewRecentPosts() {
             key={post.id}
             title={post.text}
             subtitle={post.user.username}
-            detail={<List.Item.Detail markdown={
-              post.text + 
-              post.attachments.map(a => `![${"image"}](${a})`).join("\n")
-            }  metadata={
-              <List.Item.Detail.Metadata>
-                  <List.Item.Detail.Metadata.Link title="Slack Link" target={post.slackUrl || ""} text={post.slackUrl ? "Open Slack" : "No Slack URL"}/>
-                  <List.Item.Detail.Metadata.Separator />
-                  <List.Item.Detail.Metadata.TagList title="Reactions">
-                    {post.reactions.map(reaction => {
-                      return <List.Item.Detail.Metadata.TagList.Item key={reaction.name} icon={reaction.url}/>;
-                    })}
-                  </List.Item.Detail.Metadata.TagList>
-                  <List.Item.Detail.Metadata.Separator />
-                  <List.Item.Detail.Metadata.Label title="Date Posted" icon={Icon.Clock} text={fullReadableDateTime} />
-                  <List.Item.Detail.Metadata.Separator />
-                  <List.Item.Detail.Metadata.Separator />
-                  <List.Item.Detail.Metadata.TagList title="Author">
-                      <List.Item.Detail.Metadata.TagList.Item color="Blue" icon={Icon.Person} text={post.user.username} onAction={async () => {
-                        await launchCommand({name: "search-users", type: LaunchType.UserInitiated, context: {username: post.user.username}});
-                      }}/>;
-                  </List.Item.Detail.Metadata.TagList>
-                </List.Item.Detail.Metadata>
-            }/>}
+            detail={
+              <List.Item.Detail
+                markdown={post.text + post.attachments.map((a) => `![${"image"}](${a})`).join("\n")}
+                metadata={
+                  <List.Item.Detail.Metadata>
+                    <List.Item.Detail.Metadata.Link
+                      title="Slack Link"
+                      target={post.slackUrl || ""}
+                      text={post.slackUrl ? "Open Slack" : "No Slack URL"}
+                    />
+                    <List.Item.Detail.Metadata.Separator />
+                    <List.Item.Detail.Metadata.TagList title="Reactions">
+                      {post.reactions.map((reaction) => {
+                        return <List.Item.Detail.Metadata.TagList.Item key={reaction.name} icon={reaction.url} />;
+                      })}
+                    </List.Item.Detail.Metadata.TagList>
+                    <List.Item.Detail.Metadata.Separator />
+                    <List.Item.Detail.Metadata.Label
+                      title="Date Posted"
+                      icon={Icon.Clock}
+                      text={fullReadableDateTime}
+                    />
+                    <List.Item.Detail.Metadata.Separator />
+                    <List.Item.Detail.Metadata.Separator />
+                    <List.Item.Detail.Metadata.TagList title="Author">
+                      <List.Item.Detail.Metadata.TagList.Item
+                        color="Blue"
+                        icon={Icon.Person}
+                        text={post.user.username}
+                        onAction={async () => {
+                          await launchCommand({
+                            name: "search-users",
+                            type: LaunchType.UserInitiated,
+                            context: { username: post.user.username },
+                          });
+                        }}
+                      />
+                      ;
+                    </List.Item.Detail.Metadata.TagList>
+                  </List.Item.Detail.Metadata>
+                }
+              />
+            }
+            actions={
+              <ActionPanel>
+                {post.slackUrl ? <Action.OpenInBrowser title="Open Slack Message" url={post.slackUrl} /> : undefined}
+                <Action.OpenInBrowser
+                  title="Open Scrapbook Profile"
+                  url={"https://scrapbook.hackclub.com/" + encodeURIComponent(post.user.username)}
+                />
+                <ActionPanel.Section>
+                  <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={async () => postsRevalidate()} />
+                </ActionPanel.Section>
+              </ActionPanel>
+            }
           />
         );
       })}
     </List>
+  );
+}
+
+function ListUsersDropdown(props: { usernames: string[]; setUser: (user: string) => void }) {
+  const { usernames, setUser } = props;
+  return (
+    <>
+      <List.Dropdown
+        tooltip="Select User"
+        onChange={(selectedItem) => {
+          setUser(selectedItem);
+        }}>
+          <List.Dropdown.Item title="All Users" value={""}/>
+        <List.Dropdown.Section title="Users">
+          {usernames.map((username: string) => (
+            <List.Dropdown.Item key={username} title={username} value={username}/>
+          ))}
+        </List.Dropdown.Section>
+      </List.Dropdown>
+    </>
   );
 }
