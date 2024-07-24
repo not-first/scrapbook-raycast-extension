@@ -1,15 +1,19 @@
-import { Action, ActionPanel, Icon, launchCommand, LaunchType, List, open } from "@raycast/api";
+import { Action, ActionPanel, Icon, launchCommand, LaunchProps, LaunchType, List } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { Post, User } from "../lib/types";
+import { Post } from "../lib/types";
 import { useEffect, useState } from "react";
 
-export default function ViewRecentPosts() {
-  const { isLoading: isPostsLoading, data: postsData, revalidate: postsRevalidate } = useFetch<Post[]>("https://scrapbook.hackclub.com/api/posts");
+export default function ViewRecentPosts(props: LaunchProps) {
+  const {
+    isLoading: isPostsLoading,
+    data: postsData,
+    revalidate: postsRevalidate,
+  } = useFetch<Post[]>("https://scrapbook.hackclub.com/api/posts");
 
   const [filteredUser, setFilteredUser] = useState<string | undefined>(undefined);
   const [filteredData, setFilteredData] = useState<Post[] | undefined>(undefined);
 
-  const uniqueUsernames = postsData ? Array.from(new Set(postsData.map(post => post.user.username))) : [];
+  const uniqueUsernames = postsData ? Array.from(new Set(postsData.map((post) => post.user.username))) : [];
 
   useEffect(() => {
     if (filteredUser && filteredUser !== "") {
@@ -20,7 +24,13 @@ export default function ViewRecentPosts() {
   }, [filteredUser]);
 
   return (
-    <List isLoading={isPostsLoading} searchBarAccessory={<ListUsersDropdown usernames={uniqueUsernames} setUser={setFilteredUser}/>} isShowingDetail>
+    <List
+      isLoading={isPostsLoading}
+      searchBarAccessory={
+        <ListUsersDropdown usernames={uniqueUsernames} setUser={setFilteredUser} launchProps={props} />
+      }
+      isShowingDetail
+    >
       {filteredData?.map((post: Post) => {
         const readableDate = new Date(post.postedAt).toLocaleDateString("en-US", {
           weekday: "long",
@@ -105,19 +115,21 @@ export default function ViewRecentPosts() {
   );
 }
 
-function ListUsersDropdown(props: { usernames: string[]; setUser: (user: string) => void }) {
-  const { usernames, setUser } = props;
+function ListUsersDropdown(props: { usernames: string[]; setUser: (user: string) => void; launchProps: LaunchProps }) {
+  const { launchProps, usernames, setUser } = props;
   return (
     <>
       <List.Dropdown
         tooltip="Select User"
+        value={launchProps.launchContext?.username || ""}
         onChange={(selectedItem) => {
           setUser(selectedItem);
-        }}>
-          <List.Dropdown.Item title="All Users" value={""}/>
+        }}
+      >
+        <List.Dropdown.Item title="All Users" value={""} />
         <List.Dropdown.Section title="Users">
           {usernames.map((username: string) => (
-            <List.Dropdown.Item key={username} title={username} value={username}/>
+            <List.Dropdown.Item key={username} title={username} value={username} />
           ))}
         </List.Dropdown.Section>
       </List.Dropdown>

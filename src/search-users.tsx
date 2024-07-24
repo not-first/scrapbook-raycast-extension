@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Icon, Image, LaunchProps, List } from "@raycast/api";
+import { Action, ActionPanel, Icon, Image, launchCommand, LaunchProps, LaunchType, List } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { User } from "../lib/types";
 
@@ -31,6 +31,12 @@ export default function SearchUsers(props: LaunchProps) {
             }
             actions={
               <ActionPanel>
+                <Action
+                title="View Posts"
+                icon={Icon.Book}
+                onAction={() => {
+                  launchCommand({ name: "view-recent-posts", type: LaunchType.UserInitiated, context: { username: user.username } });
+                }} />
                 <Action.OpenInBrowser
                   title="Open Scrapbook Profile"
                   url={"https://scrapbook.hackclub.com/" + encodeURIComponent(user.username)}
@@ -44,6 +50,7 @@ export default function SearchUsers(props: LaunchProps) {
                 </ActionPanel.Section>
               </ActionPanel>
             }
+
           />
         );
       })}
