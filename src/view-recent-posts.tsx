@@ -58,15 +58,18 @@ export default function ViewRecentPosts(props: LaunchProps) {
                 markdown={post.text + post.attachments.map((a) => `![${"image"}](${a})`).join("\n")}
                 metadata={
                   <List.Item.Detail.Metadata>
-                    <List.Item.Detail.Metadata.Link
-                      title="Slack Link"
-                      target={post.slackUrl || ""}
-                      text={post.slackUrl ? "Open Slack" : "No Slack URL"}
-                    />
-                    <List.Item.Detail.Metadata.Separator />
                     <List.Item.Detail.Metadata.TagList title="Reactions">
                       {post.reactions.map((reaction) => {
-                        return <List.Item.Detail.Metadata.TagList.Item key={reaction.name} icon={reaction.url} />;
+                        return (
+                          <List.Item.Detail.Metadata.TagList.Item
+                            key={reaction.name}
+                            icon={reaction.url}
+                            text={reaction.name
+                              .split("-")
+                              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                              .join(" ")}
+                          />
+                        );
                       })}
                     </List.Item.Detail.Metadata.TagList>
                     <List.Item.Detail.Metadata.Separator />
@@ -75,7 +78,6 @@ export default function ViewRecentPosts(props: LaunchProps) {
                       icon={Icon.Clock}
                       text={fullReadableDateTime}
                     />
-                    <List.Item.Detail.Metadata.Separator />
                     <List.Item.Detail.Metadata.Separator />
                     <List.Item.Detail.Metadata.TagList title="Author">
                       <List.Item.Detail.Metadata.TagList.Item
@@ -92,6 +94,12 @@ export default function ViewRecentPosts(props: LaunchProps) {
                       />
                       ;
                     </List.Item.Detail.Metadata.TagList>
+                    <List.Item.Detail.Metadata.Separator />
+                    <List.Item.Detail.Metadata.Link
+                      title="Slack Link"
+                      target={post.slackUrl || ""}
+                      text={post.slackUrl ? "Open Slack" : "No Slack URL"}
+                    />
                   </List.Item.Detail.Metadata>
                 }
               />
