@@ -48,7 +48,7 @@ export default function User({ user, revalidate }: { user: UserType; revalidate?
                   text={"View Recent Posts"}
                   onAction={() => {
                     launchCommand({
-                      name: "view-recent-posts",
+                      name: "search-users-posts",
                       type: LaunchType.UserInitiated,
                       context: { username: user.username },
                     });

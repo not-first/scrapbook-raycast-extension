@@ -22,6 +22,12 @@
       "title": "Search Users",
       "description": "Search scrapbook users",
       "mode": "view"
+    },
+    {
+      "name": "search-users-posts",
+      "title": "Search User's Posts",
+      "description": "Search for posts by a user",
+      "mode": "view"
     }
   ],
   "dependencies": {
