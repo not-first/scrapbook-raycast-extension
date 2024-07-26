@@ -1,6 +1,7 @@
 import { Action, ActionPanel, Color, Icon, launchCommand, LaunchProps, LaunchType, List } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { Post } from "./lib/types";
+import { Post, Reaction } from "./lib/types";
+import { reactionReadableName } from "./lib/utils";
 import { useEffect, useState } from "react";
 
 const colors = [Color.Magenta, Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange];
@@ -12,36 +13,50 @@ export default function ViewRecentPosts(props: LaunchProps) {
     revalidate: postsRevalidate,
   } = useFetch<Post[]>("https://scrapbook.hackclub.com/api/posts");
 
-  const [filteredUser, setFilteredUser] = useState<string | undefined>(undefined);
+  const [selectedReaction, setSelectedReaction] = useState<string>("");
   const [filteredData, setFilteredData] = useState<Post[] | undefined>(undefined);
 
-  const uniqueUsernames = postsData ? Array.from(new Set(postsData.map((post) => post.user.username))) : [];
+  const uniqueReactions = postsData
+    ? Array.from(
+        postsData
+          .flatMap((post) => post.reactions)
+          .reduce((map, reaction) => {
+            if (!map.has(reaction.name)) {
+              map.set(reaction.name, reaction);
+            }
+            return map;
+          }, new Map())
+          .values(),
+      )
+    : [];
 
   useEffect(() => {
-    if (filteredUser && filteredUser !== "") {
-      setFilteredData(postsData?.filter((post) => post.user.username === filteredUser));
+    if (selectedReaction && selectedReaction !== "") {
+      setFilteredData(
+        postsData?.filter((post) => post.reactions.some((reaction) => reaction.name === selectedReaction)),
+      );
     } else {
       setFilteredData(postsData);
     }
-  }, [filteredUser]);
+  }, [selectedReaction, postsData]);
 
   return (
     <List
       isLoading={isPostsLoading}
       searchBarAccessory={
-        <ListUsersDropdown usernames={uniqueUsernames} setUser={setFilteredUser} launchProps={props} />
+        <ReactionsDropdown reactions={uniqueReactions} selectedReaction={selectedReaction} setSelectedReaction={setSelectedReaction} launchProps={props} />
       }
       isShowingDetail
     >
       {filteredData?.map((post: Post) => {
-        const readableDate = new Date(post.postedAt).toLocaleDateString("en-US", {
+        const readableDate = new Date(post.postedAt).toLocaleDateString(undefined, {
           weekday: "long",
           year: "numeric",
           month: "long",
           day: "numeric",
         });
 
-        const readableTime = new Date(post.postedAt).toLocaleTimeString("en-US", {
+        const readableTime = new Date(post.postedAt).toLocaleTimeString(undefined, {
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
@@ -66,10 +81,10 @@ export default function ViewRecentPosts(props: LaunchProps) {
                           <List.Item.Detail.Metadata.TagList.Item
                             key={reaction.name}
                             icon={reaction.url}
-                            text={reaction.name
-                              .split("-")
-                              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                              .join(" ")}
+                            text={reactionReadableName(reaction.name)}
+                            onAction={() => {
+                              setSelectedReaction(reaction.name);
+                            }}
                           />
                         );
                       })}
@@ -117,21 +132,31 @@ export default function ViewRecentPosts(props: LaunchProps) {
   );
 }
 
-function ListUsersDropdown(props: { usernames: string[]; setUser: (user: string) => void; launchProps: LaunchProps }) {
-  const { launchProps, usernames, setUser } = props;
+function ReactionsDropdown(props: {
+  reactions: Reaction[];
+  selectedReaction: string;
+  setSelectedReaction: (user: string) => void;
+  launchProps: LaunchProps;
+}) {
+  const { reactions, selectedReaction, setSelectedReaction } = props;
   return (
     <>
       <List.Dropdown
         tooltip="Select User"
-        value={launchProps.launchContext?.username || ""}
+        value={selectedReaction}
         onChange={(selectedItem) => {
-          setUser(selectedItem);
+          setSelectedReaction(selectedItem);
         }}
       >
-        <List.Dropdown.Item title="All Users" value={""} />
-        <List.Dropdown.Section title="Users">
-          {usernames.map((username: string) => (
-            <List.Dropdown.Item key={username} title={username} value={username} />
+        <List.Dropdown.Item title="All Posts" value={""} />
+        <List.Dropdown.Section title="Reactions">
+          {reactions.map((reaction: Reaction) => (
+            <List.Dropdown.Item
+              key={reaction.name}
+              title={reactionReadableName(reaction.name)}
+              value={reaction.name}
+              icon={reaction.url}
+            />
           ))}
         </List.Dropdown.Section>
       </List.Dropdown>
