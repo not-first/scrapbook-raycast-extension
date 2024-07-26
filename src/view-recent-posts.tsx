@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Color, Icon, launchCommand, LaunchProps, LaunchType, List } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { Post } from "../lib/types";
+import { Post } from "./lib/types";
 import { useEffect, useState } from "react";
 
 const colors = [Color.Magenta, Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange];
