@@ -1,11 +1,11 @@
-import { LaunchProps, List } from "@raycast/api";
+import { List } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { Post as PostType, Reaction } from "./lib/types";
-import { reactionReadableName } from "./lib/utils";
+import { PostType } from "./lib/types";
 import { useEffect, useState } from "react";
 import Post from "./components/post";
+import { ReactionsDropdown } from "./components/reactions-dropdown";
 
-export default function ViewRecentPosts(props: LaunchProps) {
+export default function ViewRecentPosts() {
   const {
     isLoading: isPostsLoading,
     data: postsData,
@@ -14,20 +14,6 @@ export default function ViewRecentPosts(props: LaunchProps) {
 
   const [selectedReaction, setSelectedReaction] = useState<string>("");
   const [filteredData, setFilteredData] = useState<PostType[] | undefined>(undefined);
-
-  const uniqueReactions = postsData
-    ? Array.from(
-        postsData
-          .flatMap((post) => post.reactions)
-          .reduce((map, reaction) => {
-            if (!map.has(reaction.name)) {
-              map.set(reaction.name, reaction);
-            }
-            return map;
-          }, new Map())
-          .values(),
-      )
-    : [];
 
   useEffect(() => {
     if (selectedReaction && selectedReaction !== "") {
@@ -44,10 +30,9 @@ export default function ViewRecentPosts(props: LaunchProps) {
       isLoading={isPostsLoading}
       searchBarAccessory={
         <ReactionsDropdown
-          reactions={uniqueReactions}
+          posts={postsData || []}
           selectedReaction={selectedReaction}
           setSelectedReaction={setSelectedReaction}
-          launchProps={props}
         />
       }
       isShowingDetail
@@ -56,37 +41,5 @@ export default function ViewRecentPosts(props: LaunchProps) {
         <Post key={post.id} post={post} setSelectedReaction={setSelectedReaction} revalidate={postsRevalidate} />
       ))}
     </List>
-  );
-}
-
-function ReactionsDropdown(props: {
-  reactions: Reaction[];
-  selectedReaction: string;
-  setSelectedReaction: (user: string) => void;
-  launchProps: LaunchProps;
-}) {
-  const { reactions, selectedReaction, setSelectedReaction } = props;
-  return (
-    <>
-      <List.Dropdown
-        tooltip="Select User"
-        value={selectedReaction}
-        onChange={(selectedItem) => {
-          setSelectedReaction(selectedItem);
-        }}
-      >
-        <List.Dropdown.Item title="All Posts" value={""} />
-        <List.Dropdown.Section title="Reactions">
-          {reactions.map((reaction: Reaction) => (
-            <List.Dropdown.Item
-              key={reaction.name}
-              title={reactionReadableName(reaction.name)}
-              value={reaction.name}
-              icon={reaction.url}
-            />
-          ))}
-        </List.Dropdown.Section>
-      </List.Dropdown>
-    </>
   );
 }

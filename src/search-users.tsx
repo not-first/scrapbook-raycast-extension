@@ -1,6 +1,6 @@
 import { Icon, LaunchProps, List } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { User as UserType } from "./lib/types";
+import { UserType } from "./lib/types";
 import UserView from "./components/user";
 import { useState, useEffect } from "react";
 import Fuse from "fuse.js";

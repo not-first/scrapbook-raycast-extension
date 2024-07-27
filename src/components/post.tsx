@@ -1,6 +1,7 @@
 import { Action, ActionPanel, Color, Icon, launchCommand, LaunchType, List } from "@raycast/api";
-import { Post as PostType } from "../lib/types";
+import { PostType } from "../lib/types";
 import { reactionReadableName } from "../lib/utils";
+import { RefreshAction } from "./actions";
 
 const colors = [Color.Magenta, Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange];
 
@@ -83,7 +84,7 @@ export default function Post({
       actions={
         revalidate ? (
           <ActionPanel>
-            <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={async () => revalidate()} />
+            <RefreshAction revalidate={revalidate} />
           </ActionPanel>
         ) : undefined
       }

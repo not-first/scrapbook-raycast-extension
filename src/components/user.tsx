@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Action, ActionPanel, Icon, List, Image, LaunchType, launchCommand, Color } from "@raycast/api";
-import { User as UserType } from "../lib/types";
+import { UserType } from "../lib/types";
 
 export default function User({ user, revalidate }: { user: UserType; revalidate?: () => void }) {
   return (
