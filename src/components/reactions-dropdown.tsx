@@ -3,13 +3,13 @@ import { PostType, ReactionType } from "../lib/types";
 import { reactionReadableName } from "../lib/utils";
 
 export function ReactionsDropdown(props: {
-    posts: PostType[];
-    selectedReaction: string;
-    setSelectedReaction: (user: string) => void;
-  }) {
-    const { posts, selectedReaction, setSelectedReaction } = props;
+  posts: PostType[];
+  selectedReaction: string;
+  setSelectedReaction: (user: string) => void;
+}) {
+  const { posts, selectedReaction, setSelectedReaction } = props;
 
-    const reactions = posts
+  const reactions = posts
     ? Array.from(
         posts
           .flatMap((post) => post.reactions)
@@ -23,28 +23,27 @@ export function ReactionsDropdown(props: {
       )
     : [];
 
-    return (
-      <>
-        <List.Dropdown
-          tooltip="Select User"
-          value={selectedReaction}
-          onChange={(selectedItem) => {
-            setSelectedReaction(selectedItem);
-          }}
-        >
-          <List.Dropdown.Item title="All Posts" value={""} />
-          <List.Dropdown.Section title="Reactions">
-            {reactions.map((reaction: ReactionType) => (
-              <List.Dropdown.Item
-                key={reaction.name}
-                title={reactionReadableName(reaction.name)}
-                value={reaction.name}
-                icon={reaction.url}
-              />
-            ))}
-          </List.Dropdown.Section>
-        </List.Dropdown>
-      </>
-    );
-  }
-  
+  return (
+    <>
+      <List.Dropdown
+        tooltip="Select User"
+        value={selectedReaction}
+        onChange={(selectedItem) => {
+          setSelectedReaction(selectedItem);
+        }}
+      >
+        <List.Dropdown.Item title="All Posts" value={""} />
+        <List.Dropdown.Section title="Reactions">
+          {reactions.map((reaction: ReactionType) => (
+            <List.Dropdown.Item
+              key={reaction.name}
+              title={reactionReadableName(reaction.name)}
+              value={reaction.name}
+              icon={reaction.url}
+            />
+          ))}
+        </List.Dropdown.Section>
+      </List.Dropdown>
+    </>
+  );
+}

@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Color, Icon, launchCommand, LaunchType, List } from "@raycast/api";
+import { ActionPanel, Color, Icon, launchCommand, LaunchType, List } from "@raycast/api";
 import { PostType } from "../lib/types";
 import { reactionReadableName } from "../lib/utils";
 import { RefreshAction } from "./actions";

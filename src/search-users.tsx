@@ -14,27 +14,18 @@ export default function SearchUsers(props: LaunchProps) {
     if (data) {
       const fuse = new Fuse<UserType>(data, {
         keys: ["username"],
-        threshold: 0.3, 
+        threshold: 0.3,
       });
 
       const results = fuse.search(searchText);
-      setFilteredUsers(results.map(result => result.item));
+      setFilteredUsers(results.map((result) => result.item));
     }
   }, [data, searchText]);
 
-
   return (
-    <List
-      isLoading={isLoading}
-      searchText={searchText}
-      onSearchTextChange={setSearchText}
-      isShowingDetail
-      throttle
-    >
-      <List.EmptyView title="No users found" description="Begin typing to search" icon={Icon.Person}/>
-      {filteredUsers?.map((user: UserType) => (
-        <UserView key={user.id} user={user} revalidate={revalidate}/>
-      ))}
+    <List isLoading={isLoading} searchText={searchText} onSearchTextChange={setSearchText} isShowingDetail throttle>
+      <List.EmptyView title="No users found" description="Begin typing to search" icon={Icon.Person} />
+      {filteredUsers?.map((user: UserType) => <UserView key={user.id} user={user} revalidate={revalidate} />)}
     </List>
   );
 }

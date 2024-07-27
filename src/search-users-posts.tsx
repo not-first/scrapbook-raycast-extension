@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Fuse from "fuse.js";
 import Post from "./components/post";
 import { ReactionsDropdown } from "./components/reactions-dropdown";
+import { useReactionFiltering } from "./lib/hooks";
 
 type UserInfo = {
   profile: UserType;
@@ -16,11 +17,7 @@ export default function SearchUsersPosts(props: LaunchProps) {
   const [searchText, setSearchText] = useState<string>(props.launchContext?.username || "");
   const [searchUsers, setSearchUsers] = useState<UserType[]>([]);
   const [directMatch, setDirectMatch] = useState<UserType | null>(null);
-  const {
-    isLoading: usersIsLoading,
-    data: usersData,
-    revalidate: usersRevalidate,
-  } = useFetch<UserType[]>("https://scrapbook.hackclub.com/api/users");
+  const { data: usersData } = useFetch<UserType[]>("https://scrapbook.hackclub.com/api/users");
 
   const { isLoading, data } = useFetch<UserInfo>(`https://scrapbook.hackclub.com/api/users/${searchText}`, {
     keepPreviousData: true,
@@ -101,12 +98,13 @@ export default function SearchUsersPosts(props: LaunchProps) {
 }
 
 function UserPosts({ username }: { username: string }) {
-  const [selectedReaction, setSelectedReaction] = useState<string>("");
   const { isLoading, data, revalidate } = useFetch<UserInfo>(`https://scrapbook.hackclub.com/api/users/${username}`);
+  const { selectedReaction, setSelectedReaction, filteredData } = useReactionFiltering(data?.posts || []);
 
   return (
     <List
       isLoading={isLoading}
+      navigationTitle={`${data?.profile.username}'s Posts` || "Unknown User"}
       searchBarAccessory={
         <ReactionsDropdown
           posts={data?.posts || []}
@@ -114,10 +112,12 @@ function UserPosts({ username }: { username: string }) {
           setSelectedReaction={setSelectedReaction}
         />
       }
+      isShowingDetail
     >
-      {data?.posts.map((post: PostType) => (
-        <Post key={post.id} post={post} setSelectedReaction={setSelectedReaction} />
-      ))}
+      {filteredData.map((post: PostType) => {
+        post.user = { ...data!.profile };
+        return <Post key={post.id} post={post} setSelectedReaction={setSelectedReaction} revalidate={revalidate} />;
+      })}
     </List>
   );
 }
