@@ -45,7 +45,7 @@ export default function User({ user, revalidate }: { user: UserType; revalidate?
               <List.Item.Detail.Metadata.TagList title="Posts">
                 <List.Item.Detail.Metadata.TagList.Item
                   icon={Icon.ArrowNe}
-                  text={"View Recent Posts"}
+                  text={"View Posts"}
                   onAction={() => {
                     launchCommand({
                       name: "search-users-posts",
@@ -99,9 +99,45 @@ export default function User({ user, revalidate }: { user: UserType; revalidate?
         revalidate ? (
           <ActionPanel>
             <Action title="Refresh" icon={Icon.ArrowClockwise} onAction={async () => revalidate()} />
+              <CommandActions user={user} />
+              <CopyActions user={user} />
           </ActionPanel>
         ) : undefined
       }
     />
+  );
+}
+
+function CopyActions({ user }: { user: UserType }) {
+  return (
+    <ActionPanel.Section>
+      <Action.CopyToClipboard title="Copy Username" content={user.username} />
+      <Action.CopyToClipboard title="Copy Email" content={user.email || ""} />
+      <Action.CopyToClipboard title="Copy Website" content={user.website || ""} />
+      <Action.CopyToClipboard title="Copy Github" content={user.github || ""} />
+      <Action.CopyToClipboard
+        title="Copy Scrapbook Profile"
+        content={user.customDomain || "https://scrapbook.hackclub.com/" + encodeURIComponent(user.username)}
+      />
+      <Action.CopyToClipboard title="Copy Scrapbook ID" content={user.id} />
+      {user.slackID ? <Action.CopyToClipboard title="Copy Slack ID" content={user.slackID} /> : undefined}
+    </ActionPanel.Section>
+  );
+}
+
+function CommandActions({ user }: { user: UserType }) {
+  return (
+    <ActionPanel.Section>
+      <Action
+        title="View User's Posts"
+        onAction={() =>
+          launchCommand({
+            name: "search-users-posts",
+            type: LaunchType.UserInitiated,
+            context: { username: user.username },
+          })
+        }
+      />
+    </ActionPanel.Section>
   );
 }

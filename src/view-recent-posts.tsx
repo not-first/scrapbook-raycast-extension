@@ -27,7 +27,7 @@ export default function ViewRecentPosts() {
       isShowingDetail
     >
       {filteredData?.map((post: PostType) => (
-        <Post key={post.id} post={post} setSelectedReaction={setSelectedReaction} revalidate={postsRevalidate} />
+        <Post key={post.id} post={post} setSelectedReaction={setSelectedReaction} revalidate={postsRevalidate} showAuthor/>
       ))}
     </List>
   );

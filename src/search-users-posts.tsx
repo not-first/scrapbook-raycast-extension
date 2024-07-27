@@ -17,11 +17,7 @@ export default function SearchUsersPosts(props: LaunchProps) {
   const [searchText, setSearchText] = useState<string>(props.launchContext?.username || "");
   const [searchUsers, setSearchUsers] = useState<UserType[]>([]);
   const [directMatch, setDirectMatch] = useState<UserType | null>(null);
-  const { data: usersData } = useFetch<UserType[]>("https://scrapbook.hackclub.com/api/users");
-
-  const { isLoading, data } = useFetch<UserInfo>(`https://scrapbook.hackclub.com/api/users/${searchText}`, {
-    keepPreviousData: true,
-  });
+  const { isLoading, data: usersData } = useFetch<UserType[]>("https://scrapbook.hackclub.com/api/users");
 
   useEffect(() => {
     if (usersData) {
@@ -46,22 +42,16 @@ export default function SearchUsersPosts(props: LaunchProps) {
 
   return (
     <List isLoading={isLoading} searchText={searchText} onSearchTextChange={setSearchText} throttle>
-      {directMatch && data && data.posts ? (
+      {directMatch  ? (
         <List.Section title="Direct Match">
           <List.Item
             key={directMatch.id}
             title={directMatch.username}
-            accessories={[
-              { tag: { value: `${data.posts.length} posts` } },
-              ...(data.profile.streaksToggledOff === false && data.profile.displayStreak === true
-                ? [{ tag: { value: `${data.profile.streakCount} day streak` }, icon: Icon.Bolt }]
-                : []),
-            ]}
             icon={Icon.Person}
             actions={
               <ActionPanel>
                 <Action.Push
-                  title="View Profile"
+                  title="View Posts"
                   icon={Icon.Person}
                   target={<UserPosts username={directMatch.username} />}
                 />
@@ -104,7 +94,8 @@ function UserPosts({ username }: { username: string }) {
   return (
     <List
       isLoading={isLoading}
-      navigationTitle={`${data?.profile.username}'s Posts` || "Unknown User"}
+      navigationTitle={data ? `${data?.profile.username}'s Posts` : "Unknown User"}
+      searchBarPlaceholder={data ? `Search ${data?.posts.length} Posts` : undefined}
       searchBarAccessory={
         <ReactionsDropdown
           posts={data?.posts || []}

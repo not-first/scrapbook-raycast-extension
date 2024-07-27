@@ -9,10 +9,12 @@ export default function Post({
   post,
   setSelectedReaction,
   revalidate,
+  showAuthor = false
 }: {
   post: PostType;
   setSelectedReaction: (value: string) => void;
   revalidate?: () => void;
+  showAuthor?: boolean;
 }) {
   const readableDate = new Date(post.postedAt).toLocaleDateString(undefined, {
     weekday: "long",
@@ -33,8 +35,9 @@ export default function Post({
   return (
     <List.Item
       key={post.id}
+      keywords={[post.user.username]}
       title={post.text}
-      subtitle={post.user.username}
+      subtitle={showAuthor ? post.user.username : undefined}
       detail={
         <List.Item.Detail
           markdown={post.text + post.attachments.map((a) => `![${"image"}](${a})`).join("\n")}
