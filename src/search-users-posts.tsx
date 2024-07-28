@@ -14,7 +14,7 @@ type UserInfo = {
 };
 
 export default function SearchUsersPosts(props: LaunchProps) {
-  const [searchText, setSearchText] = useState<string>(props.launchContext?.username || "");
+  const [searchText, setSearchText] = useState<string>("");
   const [searchUsers, setSearchUsers] = useState<UserType[]>([]);
   const [directMatch, setDirectMatch] = useState<UserType | null>(null);
   const { isLoading, data: usersData } = useFetch<UserType[]>("https://scrapbook.hackclub.com/api/users");
@@ -40,51 +40,55 @@ export default function SearchUsersPosts(props: LaunchProps) {
     }
   }, [usersData, searchText]);
 
-  return (
-    <List isLoading={isLoading} searchText={searchText} onSearchTextChange={setSearchText} throttle>
-      {directMatch  ? (
-        <List.Section title="Direct Match">
-          <List.Item
-            key={directMatch.id}
-            title={directMatch.username}
-            icon={Icon.Person}
-            actions={
-              <ActionPanel>
-                <Action.Push
-                  title="View Posts"
-                  icon={Icon.Person}
-                  target={<UserPosts username={directMatch.username} />}
-                />
-              </ActionPanel>
-            }
-          />
-        </List.Section>
-      ) : null}
-
-      {searchUsers.length > 0 ? (
-        <List.Section title="Other Users">
-          {searchUsers.map((user) => (
+  if (props.launchContext?.username) {
+    return <UserPosts username={props.launchContext.username} />;
+  } else {
+    return (
+      <List isLoading={isLoading} searchText={searchText} onSearchTextChange={setSearchText} throttle>
+        {directMatch ? (
+          <List.Section title="Direct Match">
             <List.Item
-              key={user.id}
-              title={user.username}
+              key={directMatch.id}
+              title={directMatch.username}
               icon={Icon.Person}
               actions={
                 <ActionPanel>
                   <Action.Push
-                    title="View Profile"
+                    title="View Posts"
                     icon={Icon.Person}
-                    target={<UserPosts username={user.username} />}
+                    target={<UserPosts username={directMatch.username} />}
                   />
                 </ActionPanel>
               }
             />
-          ))}
-        </List.Section>
-      ) : (
-        <List.EmptyView title="User not found" description="No user found for the current name" icon={Icon.Person} />
-      )}
-    </List>
-  );
+          </List.Section>
+        ) : null}
+
+        {searchUsers.length > 0 ? (
+          <List.Section title="Other Users">
+            {searchUsers.map((user) => (
+              <List.Item
+                key={user.id}
+                title={user.username}
+                icon={Icon.Person}
+                actions={
+                  <ActionPanel>
+                    <Action.Push
+                      title="View Profile"
+                      icon={Icon.Person}
+                      target={<UserPosts username={user.username} />}
+                    />
+                  </ActionPanel>
+                }
+              />
+            ))}
+          </List.Section>
+        ) : (
+          <List.EmptyView title="User not found" description="No user found for the current name" icon={Icon.Person} />
+        )}
+      </List>
+    );
+  }
 }
 
 function UserPosts({ username }: { username: string }) {
