@@ -55,10 +55,6 @@ export function UserCopyActions({ user }: { user: UserType }) {
 
 export function PostOpenActions({ post }: { post: PostType }) {
   return (
-    <>
-      {post.slackUrl && (
-        <Action.OpenInBrowser title="Open In Slack" icon={Icon.Link} url={post.slackUrl ?? ""} />
-      )}
-    </>
+    <>{post.slackUrl && <Action.OpenInBrowser title="Open In Slack" icon={Icon.Link} url={post.slackUrl ?? ""} />}</>
   );
 }
