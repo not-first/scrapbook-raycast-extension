@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
   Action,
   ActionPanel,
@@ -37,18 +35,18 @@ export default function User({ user, revalidate }: { user: UserType; revalidate?
                 <List.Item.Detail.Metadata.Label title="Timezone" text={user.timezone} icon={Icon.Clock} />
               )}
               <List.Item.Detail.Metadata.Separator />
-              <List.Item.Detail.Metadata.Label title="Email" icon={Icon.Envelope} text={user.email || "No email"} />
-              <List.Item.Detail.Metadata.Link
-                title="Website"
-                text={user.website || "No website"}
-                target={user.website || ""}
-              />
+              <List.Item.Detail.Metadata.Label title="Email" icon={Icon.Envelope} text={user.email || "-"} />
+              {user.website ? (
+                <List.Item.Detail.Metadata.Link title="Website" text={user.website} target={user.website} />
+              ) : (
+                <List.Item.Detail.Metadata.Label title="Website" text={"-"} />
+              )}
               <List.Item.Detail.Metadata.Separator />
-              <List.Item.Detail.Metadata.Link
-                title="Github"
-                text={user.github || "No Github"}
-                target={user.github || ""}
-              />
+              {user.github ? (
+                <List.Item.Detail.Metadata.Link title="Github" text={user.github || "-"} target={user.github || ""} />
+              ) : (
+                <List.Item.Detail.Metadata.Label title="Github" text={"-"} />
+              )}
               <List.Item.Detail.Metadata.Link
                 title="Scrapbook Profile"
                 text={"Open Scrapbook"}

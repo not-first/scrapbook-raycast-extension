@@ -1,7 +1,7 @@
 import { ActionPanel, Color, Icon, launchCommand, LaunchType, List } from "@raycast/api";
 import { PostType } from "../lib/types";
 import { reactionReadableName } from "../lib/utils";
-import { RefreshAction } from "./actions";
+import { PostOpenActions, RefreshAction } from "./actions";
 
 const colors = [Color.Magenta, Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange];
 
@@ -9,11 +9,11 @@ export default function Post({
   post,
   setSelectedReaction,
   revalidate,
-  showAuthor = false
+  showAuthor = false,
 }: {
   post: PostType;
   setSelectedReaction: (value: string) => void;
-  revalidate?: () => void;
+  revalidate: () => void;
   showAuthor?: boolean;
 }) {
   const readableDate = new Date(post.postedAt).toLocaleDateString(undefined, {
@@ -85,11 +85,10 @@ export default function Post({
         />
       }
       actions={
-        revalidate ? (
-          <ActionPanel>
-            <RefreshAction revalidate={revalidate} />
-          </ActionPanel>
-        ) : undefined
+        <ActionPanel>
+          <RefreshAction revalidate={revalidate} />
+          <PostOpenActions post={post} />
+        </ActionPanel>
       }
     />
   );
