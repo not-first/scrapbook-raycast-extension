@@ -63,7 +63,11 @@ export default function SearchUsersPosts(props: LaunchProps) {
           </List.Section>
         ) : null}
 
-        <List.EmptyView title={searchText.length > 0 ? "No users found" : `${usersData?.length || 0} users loaded`} description={searchText.length > 0 ? "No users match the current search query" : "Begin typing to search"} icon={Icon.Person} />
+        <List.EmptyView
+          title={searchText.length > 0 ? "No users found" : `${usersData?.length || 0} users loaded`}
+          description={searchText.length > 0 ? "No users match the current search query" : "Begin typing to search"}
+          icon={Icon.Person}
+        />
         <List.Section title="Other Users">
           {searchUsers.map((user) => (
             <List.Item
