@@ -2,7 +2,6 @@ import { ActionPanel, Color, Icon, launchCommand, LaunchType, List, showToast, T
 import { PostType } from "../lib/types";
 import { reactionReadableName } from "../lib/utils";
 import { PostOpenActions, RefreshAction } from "./actions";
-import { showFailureToast } from "@raycast/utils";
 
 const colors = [Color.Magenta, Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange];
 
