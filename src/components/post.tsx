@@ -1,7 +1,8 @@
-import { ActionPanel, Color, Icon, launchCommand, LaunchType, List } from "@raycast/api";
+import { ActionPanel, Color, Icon, launchCommand, LaunchType, List, showToast, Toast } from "@raycast/api";
 import { PostType } from "../lib/types";
 import { reactionReadableName } from "../lib/utils";
 import { PostOpenActions, RefreshAction } from "./actions";
+import { showFailureToast } from "@raycast/utils";
 
 const colors = [Color.Magenta, Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple, Color.Orange];
 
@@ -66,11 +67,15 @@ export default function Post({
                   icon={Icon.Person}
                   text={post.user.username}
                   onAction={async () => {
-                    await launchCommand({
-                      name: "search-users",
-                      type: LaunchType.UserInitiated,
-                      context: { username: post.user.username },
-                    });
+                    try {
+                      await launchCommand({
+                        name: "search-users",
+                        type: LaunchType.UserInitiated,
+                        context: { username: post.user.username },
+                      });
+                    } catch (err) {
+                      showToast({ title: "Command not enabled", style: Toast.Style.Failure });
+                    }
                   }}
                 />
               </List.Item.Detail.Metadata.TagList>
